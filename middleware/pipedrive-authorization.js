@@ -4,7 +4,8 @@ const oAuthManager = lib.OAuthManager
 lib.Configuration.apiToken = process.env.PIPEDRIVE_API_TOKEN
 lib.Configuration.oAuthClientId = process.env.PIPEDRIVE_CLIENT_ID // OAuth 2 Client ID
 lib.Configuration.oAuthClientSecret = process.env.PIPEDRIVE_CLIENT_SECRET // OAuth 2 Client Secret
-lib.Configuration.oAuthRedirectUri = `${process.env.HOST}:${process.env.PORT}/auth/pipedrive/callback` // OAuth
+lib.Configuration.oAuthRedirectUri = '/auth/pipedrive/callback' // OAuth
+// lib.Configuration.oAuthRedirectUri = `${process.env.HOST}:${process.env.PORT}/auth/pipedrive/callback` // OAuth
 
 module.exports = async (appServer) => {
   appServer.get('/auth_user', async (req, res) => {
@@ -16,6 +17,7 @@ module.exports = async (appServer) => {
     try {
       console.log('callback is requested')
       if (req.query.error) {
+        console.log(req.query)
         throw new Error(req.query.error)
       }
       console.log('oAuthToken', lib.Configuration.oAuthToken)
