@@ -6,3 +6,4 @@ global.CustomException = class CustomException extends Error {
     this.status = status
   }
 }
+module.exports = CustomException
