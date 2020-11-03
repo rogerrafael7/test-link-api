@@ -6,7 +6,6 @@ lib.Configuration.oAuthClientId = process.env.PIPEDRIVE_CLIENT_ID // OAuth 2 Cli
 lib.Configuration.oAuthClientSecret = process.env.PIPEDRIVE_CLIENT_SECRET // OAuth 2 Client Secret
 // lib.Configuration.oAuthRedirectUri = '/auth/pipedrive/callback' // OAuth
 lib.Configuration.oAuthRedirectUri = `${process.env.HOST}:${process.env.PORT}/auth/pipedrive/callback` // OAuth
-console.log(lib.Configuration.oAuthRedirectUri, 1)
 
 module.exports = async (appServer) => {
   appServer.get('/auth_user', async (req, res) => {
@@ -44,6 +43,7 @@ module.exports = async (appServer) => {
         next()
       } else {
         const authUrl = oAuthManager.buildAuthorizationUrl()
+        console.log(authUrl)
         res.redirect(authUrl)
       }
     } catch (error) {
