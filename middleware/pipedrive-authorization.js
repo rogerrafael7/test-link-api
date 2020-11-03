@@ -13,11 +13,12 @@ module.exports = async (appServer) => {
   })
 
   appServer.get('/auth/pipedrive/callback', async (req, res, next) => {
-    console.log('oAuthToken', lib.Configuration.oAuthToken)
     try {
+      console.log('callback is requested')
       if (req.query.error) {
         throw new Error(req.query.error)
       }
+      console.log('oAuthToken', lib.Configuration.oAuthToken)
       const authCode = req.query.code
       await oAuthManager.authorize(authCode)
       console.log('lib.Configuration.oAuthToken', lib.Configuration.oAuthToken)
@@ -38,10 +39,8 @@ module.exports = async (appServer) => {
         // client will automatically refresh the token when it expires and call the token update callback
         // const user = await lib.UsersController.getCurrentUserData()
         next()
-        console.log('123')
       } else {
         const authUrl = oAuthManager.buildAuthorizationUrl()
-        console.log(authUrl)
         res.redirect(authUrl)
       }
     } catch (error) {
