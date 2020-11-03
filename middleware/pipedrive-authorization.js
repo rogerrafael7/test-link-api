@@ -27,15 +27,22 @@ module.exports = async (appServer) => {
   })
 
   return async (req, res, next) => {
-    if (req.session.token !== null && req.session.token !== undefined) {
-      // token is already set in the session
-      // now make API calls as required
-      // client will automatically refresh the token when it expires and call the token update callback
-      // const user = await lib.UsersController.getCurrentUserData()
-      next()
-    } else {
-      const authUrl = oAuthManager.buildAuthorizationUrl()
-      res.redirect(authUrl)
+    try {
+      console.log('req.session', req.session)
+      if (req.session.token !== null && req.session.token !== undefined) {
+        // token is already set in the session
+        // now make API calls as required
+        // client will automatically refresh the token when it expires and call the token update callback
+        // const user = await lib.UsersController.getCurrentUserData()
+        next()
+        console.log('123')
+      } else {
+        const authUrl = oAuthManager.buildAuthorizationUrl()
+        console.log(authUrl)
+        res.redirect(authUrl)
+      }
+    } catch (error) {
+      res.error(error)
     }
   }
 }
