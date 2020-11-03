@@ -4,7 +4,7 @@ require('dotenv').config({
   path: path.resolve(__dirname, '.env-development')
 })
 
-require('globals/CustomException')
+require('./globals/CustomException')
 
 const express = require('express')
 const bodyParser = require('body-parser')
