@@ -6,18 +6,25 @@ require('dotenv').config({
 
 const express = require('express')
 const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
+const cookieSession = require('cookie-session')
 const app = express()
 const responser = require('./middleware/responser')
+const pipedriveAuthorization = require('./middleware/pipedrive-authorization')
 const controllers = require('./controllers')
-const requestHelper = require('./helper/request')
 const PORT = process.env.PORT
 
 const init = async () => {
   app.use(bodyParser.json())
+  app.use(cookieParser())
+  app.use(cookieSession({
+    name: 'session',
+    keys: ['key1']
+  }))
   app.use(responser)
+  app.use((await pipedriveAuthorization(app)))
 
   await controllers.init(app)
-  await requestHelper.init(app)
 
   app.listen(PORT, () => {
     console.log(`Server is running! Port: ${PORT}`)
