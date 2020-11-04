@@ -14,7 +14,7 @@ const Oportunidades = connection.model('Oportunidades', {
   },
   dataUltimoEvento: {
     type: Date,
-    default: () => new Date()
+    default: Date.now
   }
 })
 module.exports = Oportunidades
