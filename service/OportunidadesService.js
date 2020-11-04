@@ -190,7 +190,7 @@ class OportunidadesService extends AbstractService {
         }
       }
     }
-    console.log(status)
+    console.log(status, deal)
     return mapActions[status] ? mapActions[status]() : undefined
   }
 }
