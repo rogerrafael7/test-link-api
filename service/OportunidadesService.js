@@ -3,6 +3,7 @@ const lib = require('pipedrive')
 const OportunidadesModel = require('../models/oportunidadesModel')
 const axios = require('axios')
 const moment = require('moment')
+const FormData = require('form-data')
 
 class OportunidadesService extends AbstractService {
   /**
@@ -52,27 +53,30 @@ class OportunidadesService extends AbstractService {
 
     const cancelarPedidoBling = async (oportunidade) => {
       if (oportunidade && oportunidade.idPedidoCompra) {
-        await axios.put(`https://bling.com.br/Api/v2/pedidocompra/${oportunidade.idPedidoCompra}/json`, {
-          apikey: process.env.BLING_API_KEY,
-          xml: `
+        const formData = new FormData()
+        formData.append('apikey', process.env.BLING_API_KEY)
+        formData.append('xml', `
             <pedidocompra>
                 <situacao>${2}</situacao>
             </pedidocompra>
-            `.replace(/[\n\t\r]/, '')
-        }, { headers: { 'Content-Type': 'multipart/form-data' } })
+            `.replace(/[\n\t\r]/, ''))
+
+        await axios.put(`https://bling.com.br/Api/v2/pedidocompra/${oportunidade.idPedidoCompra}/json`, formData, {
+          headers: formData.getHeaders()
+        })
       }
     }
 
     const reabrirPedidoBling = async (oportunidade) => {
       if (oportunidade && oportunidade.idPedidoCompra) {
-        await axios.put(`https://bling.com.br/Api/v2/pedidocompra/${oportunidade.idPedidoCompra}/json`, {
-          apikey: process.env.BLING_API_KEY,
-          xml: `
+        const formData = new FormData()
+        formData.append('apikey', process.env.BLING_API_KEY)
+        formData.append('xml', `
             <pedidocompra>
                 <situacao>${3}</situacao>
             </pedidocompra>
-            `.replace(/[\n\t\r]/, '')
-        })
+            `.replace(/[\n\t\r]/, ''))
+        await axios.put(`https://bling.com.br/Api/v2/pedidocompra/${oportunidade.idPedidoCompra}/json`, formData, { headers: formData.getHeaders() })
       }
     }
 
@@ -83,9 +87,9 @@ class OportunidadesService extends AbstractService {
       const { data: { retorno: { produtos = [] } } } = await axios.get(`https://bling.com.br/Api/v2/produtos/json?apikey=${process.env.BLING_API_KEY}`)
       const unicoProduto = (produtos[0] || {}).produto
 
-      const { data: { retorno: { pedidoscompra = [] } } } = await axios.post('https://bling.com.br/Api/v2/pedidocompra/json', {
-        apikey: process.env.BLING_API_KEY,
-        xml: `
+      const formData = new FormData()
+      formData.append('apikey', process.env.BLING_API_KEY)
+      formData.append('xml', `
             <pedidocompra>
                 <numeropedido>1</numeropedido>
                 <datacompra>${moment().format('DD/MM/YYYY')}</datacompra>
@@ -110,8 +114,8 @@ class OportunidadesService extends AbstractService {
                   </item>
                </itens>
             </pedidocompra>
-          `.replace(/[\n\t\r]/, '')
-      }, { headers: { 'Content-Type': 'multipart/form-data' } })
+          `.replace(/[\n\t\r]/, ''))
+      const { data: { retorno: { pedidoscompra = [] } } } = await axios.post('https://bling.com.br/Api/v2/pedidocompra/json', formData, { headers: formData.getHeaders() })
       return (pedidoscompra[0] || {}).pedidocompra
     }
 
