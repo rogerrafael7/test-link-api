@@ -1,4 +1,4 @@
-module.exports = class AbstractController {
+module.exports = class AbstractService {
   constructor (req, res, options = {}) {
     this.request = req
     this.response = res

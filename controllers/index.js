@@ -2,6 +2,7 @@ const fs = require('fs')
 const express = require('express')
 const { Router } = express
 
+// registra dinamicamente todos as rotas de todos os Controllers
 const controllersModule = {
   init: async (appServer) => {
     const controllersFiles = fs.readdirSync(__dirname)
