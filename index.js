@@ -19,10 +19,6 @@ const PORT = process.env.PORT
 const init = async () => {
   app.use(bodyParser.json())
   app.use(cookieParser())
-  app.use(cookieSession({
-    name: 'session',
-    keys: ['key1']
-  }))
   app.use(responser)
   app.use((await pipedriveAuthorization(app)))
 
