@@ -47,14 +47,14 @@ class OportunidadesService extends AbstractService {
     // Obs.: GANHO salva, PERDIDO salva tmb, se voltar para andamento sendo q já estava salvo no banco, ai o remove do mongo
     // as mesmas ações feitas no banco tmb devem refletir no Bling, insere novo pedido no caso de GANHO e remove um pedido(se já existente) se for diferente de GANHO
 
-    if (['won', 'lost', 'deleted'].includes(deal.status)) {
-      const {
-        id,
-        status,
-        title,
-        value
-      } = deal
+    const {
+      id,
+      status,
+      title,
+      value
+    } = deal
 
+    if (['won', 'lost', 'deleted'].includes(deal.status)) {
       const mapActions = {
         won: async () => {
           return OportunidadesModel.update({ idOrigin: id }, {
@@ -77,6 +77,13 @@ class OportunidadesService extends AbstractService {
         }
       }
       return mapActions[status] ? mapActions[status]() : undefined
+    } else if (deal.status === 'open') {
+      const doc = await OportunidadesModel.findOne({
+        idOrigin: id
+      })
+      if (doc) {
+        return doc.remove()
+      }
     }
   }
 }
