@@ -148,11 +148,11 @@ class OportunidadesService extends AbstractService {
             oportunidade.status = 'ganho'
             await oportunidade.save()
           } else {
-            const { id } = await inserirNovoPedidoBling()
-            idPedidoCompra = id
+            const novoPedido = await inserirNovoPedidoBling()
+            idPedidoCompra = novoPedido.id
             oportunidade = await new OportunidadesModel({
               idOrigin: id,
-              idPedidoCompra: idPedidoCompra,
+              idPedidoCompra,
               nomeNegocio: title,
               valorFinal: value,
               status: 'ganho'
@@ -190,7 +190,6 @@ class OportunidadesService extends AbstractService {
         }
       }
     }
-    console.log(status, deal)
     return mapActions[status] ? mapActions[status]() : undefined
   }
 }
