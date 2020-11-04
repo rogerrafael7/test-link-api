@@ -14,7 +14,7 @@ const Oportunidades = connection.model('Oportunidades', new Schema({
     enum: ['ganho', 'perdido']
   },
   modified_on: {
-    type: Date,
+    type: Number,
     default: Date.now
   }
 }))
