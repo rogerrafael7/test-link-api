@@ -143,7 +143,6 @@ class OportunidadesService extends AbstractService {
           let oportunidade = await OportunidadesModel.findOne({
             idOrigin: id
           })
-          let idPedidoCompra = null
           if (oportunidade) {
             await reabrirPedidoBling(oportunidade)
             oportunidade.nomeNegocio = title
@@ -152,14 +151,14 @@ class OportunidadesService extends AbstractService {
             await oportunidade.save()
           } else {
             const novoPedido = await inserirNovoPedidoBling()
-            idPedidoCompra = novoPedido.id
+            const idPedidoCompra = novoPedido.id
             oportunidade = await new OportunidadesModel({
               idOrigin: id,
               idPedidoCompra,
               nomeNegocio: title,
               valorFinal: value,
               status: 'ganho'
-            }).save({ idOrigin: id })
+            }).save()
           }
           return oportunidade
         }
