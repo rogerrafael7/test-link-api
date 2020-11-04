@@ -83,7 +83,7 @@ class OportunidadesService extends AbstractService {
       const unicoContatoFornecedor = contatos[0]
       const { produtos } = await axios.get(`https://bling.com.br/Api/v2/produtos/json?apikey=${process.env.BLING_API_KEY}`)
       const unicoProduto = produtos[0]
-      return axios.post('https://bling.com.br/Api/v2/pedidocompra/json', {
+      const { data: { pedidoscompra = [] } } = await axios.post('https://bling.com.br/Api/v2/pedidocompra/json', {
         apikey: process.env.BLING_API_KEY,
         xml: `
             <?xml version="1.0" encoding="utf-8" ?>
@@ -113,6 +113,7 @@ class OportunidadesService extends AbstractService {
             </pedidocompra>
           `
       })
+      return (pedidoscompra[0] || {}).pedidocompra
     }
 
     const mapActions = {
