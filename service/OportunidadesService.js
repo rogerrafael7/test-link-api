@@ -59,7 +59,7 @@ class OportunidadesService extends AbstractService {
                 <situacao>${2}</situacao>
             </pedidocompra>
             `.replace(/[\n\t\r]/, '')
-        })
+        }, { headers: { 'Content-Type': 'multipart/form-data' } })
       }
     }
 
@@ -111,7 +111,7 @@ class OportunidadesService extends AbstractService {
                </itens>
             </pedidocompra>
           `.replace(/[\n\t\r]/, '')
-      })
+      }, { headers: { 'Content-Type': 'multipart/form-data' } })
       return (pedidoscompra[0] || {}).pedidocompra
     }
 
