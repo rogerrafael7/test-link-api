@@ -11,11 +11,11 @@ const Oportunidades = connection.model('Oportunidades', new Schema({
   valorFinal: Number,
   status: {
     type: String,
-    enum: ['ganho', 'perdido']
+    enum: ['ganho', 'perdido', 'reaberto', 'removido']
   },
   modified_on: {
-    type: Number,
-    default: Date.now
+    type: Date,
+    default: () => new Date()
   }
 }))
 module.exports = Oportunidades

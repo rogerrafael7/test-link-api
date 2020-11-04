@@ -127,30 +127,39 @@ class OportunidadesService extends AbstractService {
           })
           if (oportunidade) {
             await cancelarPedidoBling(oportunidade)
-            await oportunidade.remove()
+            await oportunidade.update({
+              nomeNegocio: title,
+              valorFinal: value,
+              status: 'reaberto'
+            })
             return oportunidade
           }
         }
       },
       won: async () => {
         if (id) {
-          const oportunidade = await OportunidadesModel.findOne({
+          let oportunidade = await OportunidadesModel.findOne({
             idOrigin: id
           })
           let idPedidoCompra = null
           if (oportunidade) {
-            idPedidoCompra = oportunidade.idPedidoCompra
             await reabrirPedidoBling(oportunidade)
+            await oportunidade.update({
+              nomeNegocio: title,
+              valorFinal: value,
+              status: 'ganho'
+            })
           } else {
             const { id } = await inserirNovoPedidoBling()
             idPedidoCompra = id
+            oportunidade = await new OportunidadesModel({
+              idOrigin: id,
+              idPedidoCompra: idPedidoCompra,
+              nomeNegocio: title,
+              valorFinal: value,
+              status: 'ganho'
+            }).save({ idOrigin: id })
           }
-          await OportunidadesModel.update({ idOrigin: id }, {
-            idPedidoCompra: idPedidoCompra,
-            nomeNegocio: title,
-            valorFinal: value,
-            status: 'ganho'
-          }, { upsert: true })
           return oportunidade
         }
       },
@@ -161,14 +170,13 @@ class OportunidadesService extends AbstractService {
           })
           if (oportunidade) {
             await cancelarPedidoBling(oportunidade)
+            await oportunidade.update({
+              nomeNegocio: title,
+              valorFinal: value,
+              status: 'perdido'
+            })
+            return oportunidade
           }
-          await OportunidadesModel.update({ idOrigin: id }, {
-            nomeNegocio: title,
-            valorFinal: value,
-            status: 'perdido'
-          }, { upsert: true })
-
-          return oportunidade
         }
       },
       deleted: async () => {
@@ -177,10 +185,13 @@ class OportunidadesService extends AbstractService {
         })
         if (oportunidade) {
           await cancelarPedidoBling(oportunidade)
+          await oportunidade.update({
+            nomeNegocio: title,
+            valorFinal: value,
+            status: 'removido'
+          })
+          return oportunidade
         }
-        return OportunidadesModel.deleteOne({
-          idOrigin: id
-        })
       }
     }
     return mapActions[status] ? mapActions[status]() : undefined
