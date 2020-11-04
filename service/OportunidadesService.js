@@ -59,7 +59,7 @@ class OportunidadesService extends AbstractService {
             <pedidocompra>
                 <situacao>${2}</situacao>
             </pedidocompra>
-            `
+            `.replace(/[\n\t\r]/, '')
         })
       }
     }
@@ -73,7 +73,7 @@ class OportunidadesService extends AbstractService {
             <pedidocompra>
                 <situacao>${3}</situacao>
             </pedidocompra>
-            `
+            `.replace(/[\n\t\r]/, '')
         })
       }
     }
@@ -113,7 +113,7 @@ class OportunidadesService extends AbstractService {
                   </item>
                </itens>
             </pedidocompra>
-          `
+          `.replace(/[\n\t\r]/, '')
       })
       return (pedidoscompra[0] || {}).pedidocompra
     }
