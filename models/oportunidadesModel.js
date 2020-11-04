@@ -1,5 +1,6 @@
 const connection = require('./index')
 const { Schema } = require('mongoose')
+const moment = require('moment')
 
 const Oportunidades = connection.model('Oportunidades', new Schema({
   idOrigin: {
@@ -14,8 +15,8 @@ const Oportunidades = connection.model('Oportunidades', new Schema({
     enum: ['ganho', 'perdido', 'reaberto', 'removido']
   },
   modified_on: {
-    type: Date,
-    default: () => new Date()
+    type: String,
+    default: () => moment().format('YYYY-MM-DD')
   }
 }))
 module.exports = Oportunidades

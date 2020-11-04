@@ -27,7 +27,10 @@ class OportunidadesService extends AbstractService {
    * @return {Promise<void>}
    */
   async getKpis () {
-    // todo: agregar resultados da collection de oportunidades e retornar informações, prever filtros
+    return OportunidadesModel.aggregate([
+      { $match: { status: 'ganho' } },
+      { $group: { _id: '$modified_on', total: { $sum: '$valorFinal' } } }
+    ])
   }
 
   /**
