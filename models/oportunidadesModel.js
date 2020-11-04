@@ -15,7 +15,7 @@ const Oportunidades = connection.model('Oportunidades', {
   },
   dataUltimoEvento: {
     type: String,
-    default: () => moment().format('DD/MM/YYYY')
+    default: () => moment().format('YYYY-MM-DD')
   }
 })
 module.exports = Oportunidades
