@@ -1,6 +1,8 @@
 const AbstractService = require('./AbstractService')
 const lib = require('pipedrive')
 const OportunidadesModel = require('../models/oportunidadesModel')
+const axios = require('axios')
+const moment = require('moment')
 
 class OportunidadesService extends AbstractService {
   /**
@@ -17,9 +19,7 @@ class OportunidadesService extends AbstractService {
    * Método resopnsável por sincronizar os dados do Pipedrive com os desta aplicação
    * @return {Promise<void>}
    */
-  async syncOportunidades () {
-
-  }
+  async syncOportunidades () {}
 
   /**
    * Retorna os indicadores agregando e filtrando os dados salvos no mongodb
@@ -43,10 +43,6 @@ class OportunidadesService extends AbstractService {
    * @return {Promise<void>}
    */
   async saveOportunidade (deal = {}) {
-    // todo: salva no mongodb uma oportunidade enviada pelo WebHook registrado no pipedrive.
-    // Obs.: GANHO salva, PERDIDO salva tmb, se voltar para andamento sendo q já estava salvo no banco, ai o remove do mongo
-    // as mesmas ações feitas no banco tmb devem refletir no Bling, insere novo pedido no caso de GANHO e remove um pedido(se já existente) se for diferente de GANHO
-
     const {
       id,
       status,
@@ -54,37 +50,135 @@ class OportunidadesService extends AbstractService {
       value
     } = deal
 
-    if (['won', 'lost', 'deleted'].includes(deal.status)) {
-      const mapActions = {
-        won: async () => {
-          return OportunidadesModel.update({ idOrigin: id }, {
+    const cancelarPedidoBling = async (oportunidade) => {
+      if (oportunidade && oportunidade.idPedidoCompra) {
+        await axios.put(`https://bling.com.br/Api/v2/pedidocompra/${oportunidade.idPedidoCompra}/json`, {
+          apikey: process.env.BLING_API_KEY,
+          xml: `
+            <?xml version="1.0" encoding="UTF-8"?>
+            <pedidocompra>
+                <situacao>${2}</situacao>
+            </pedidocompra>
+            `
+        })
+      }
+    }
+
+    const reabrirPedidoBling = async (oportunidade) => {
+      if (oportunidade && oportunidade.idPedidoCompra) {
+        await axios.put(`https://bling.com.br/Api/v2/pedidocompra/${oportunidade.idPedidoCompra}/json`, {
+          apikey: process.env.BLING_API_KEY,
+          xml: `
+            <?xml version="1.0" encoding="UTF-8"?>
+            <pedidocompra>
+                <situacao>${3}</situacao>
+            </pedidocompra>
+            `
+        })
+      }
+    }
+
+    const inserirNovoPedidoBling = async () => {
+      const { contatos } = await axios.get(`https://bling.com.br/Api/v2/contatos/json?apikey=${process.env.BLING_API_KEY}`)
+      const unicoContatoFornecedor = contatos[0]
+      const { produtos } = await axios.get(`https://bling.com.br/Api/v2/produtos/json?apikey=${process.env.BLING_API_KEY}`)
+      const unicoProduto = produtos[0]
+      return axios.post('https://bling.com.br/Api/v2/pedidocompra/json', {
+        apikey: process.env.BLING_API_KEY,
+        xml: `
+            <?xml version="1.0" encoding="utf-8" ?>
+            <pedidocompra>
+                <numeropedido>1</numeropedido>
+                <datacompra>${moment().format('DD/MM/YYYY')}</datacompra>
+                <fornecedor>
+                    <id>${unicoContatoFornecedor.id}</id>
+                    <nome>${unicoContatoFornecedor.nome}</nome>
+                    <tipopessoa>${unicoContatoFornecedor.tipo}</tipopessoa>
+                    <cpfcnpj>${unicoContatoFornecedor.cnpj}</cpfcnpj>
+                    <contribuinte>${unicoContatoFornecedor.contribuinte}</contribuinte>
+                    <endereco>${unicoContatoFornecedor.endereco}</endereco>
+                    <cep>${unicoContatoFornecedor.cep}</cep>
+                    <cidade>${unicoContatoFornecedor.cidade}</cidade>
+                    <uf>${unicoContatoFornecedor.uf}</uf>
+               </fornecedor>
+               <itens>
+                 <item>
+                     <codigo>${unicoProduto.codigo}</codigo>
+                     <descricao>${unicoProduto.descricao}</descricao>
+                     <un/>
+                     <qtde>1</qtde>
+                     <valor>${unicoProduto.preco}</valor>
+                  </item>
+               </itens>
+            </pedidocompra>
+          `
+      })
+    }
+
+    const mapActions = {
+      open: async () => {
+        if (id) {
+          const oportunidade = await OportunidadesModel.findOne({
+            idOrigin: id
+          })
+          if (oportunidade) {
+            await cancelarPedidoBling(oportunidade)
+            return oportunidade.remove()
+          }
+        }
+      },
+      won: async () => {
+        if (id) {
+          const oportunidade = await OportunidadesModel.findOne({
+            idOrigin: id
+          })
+          let idPedidoCompra = null
+          if (oportunidade) {
+            idPedidoCompra = oportunidade.idPedidoCompra
+            await reabrirPedidoBling(oportunidade)
+          } else {
+            const { id } = await inserirNovoPedidoBling()
+            idPedidoCompra = id
+          }
+          OportunidadesModel.update({ idOrigin: id }, {
+            idPedidoCompra: idPedidoCompra,
             nomeNegocio: title,
             valorFinal: value,
             status: 'ganho'
           }, { upsert: true })
-        },
-        lost: async () => {
-          return OportunidadesModel.update({ idOrigin: id }, {
+          return oportunidade
+        }
+      },
+      lost: async () => {
+        if (id) {
+          const oportunidade = await OportunidadesModel.findOne({
+            idOrigin: id
+          })
+          if (oportunidade) {
+            await cancelarPedidoBling(oportunidade)
+          }
+          await OportunidadesModel.update({ idOrigin: id }, {
             nomeNegocio: title,
             valorFinal: value,
             status: 'perdido'
           }, { upsert: true })
-        },
-        deleted: async () => {
-          return OportunidadesModel.deleteOne({
-            idOrigin: id
-          })
+
+          return oportunidade
         }
-      }
-      return mapActions[status] ? mapActions[status]() : undefined
-    } else if (deal.status === 'open') {
-      const doc = await OportunidadesModel.findOne({
-        idOrigin: id
-      })
-      if (doc) {
-        return doc.remove()
+      },
+      deleted: async () => {
+        const oportunidade = await OportunidadesModel.findOne({
+          idOrigin: id
+        })
+        if (oportunidade) {
+          await cancelarPedidoBling(oportunidade)
+        }
+        return OportunidadesModel.deleteOne({
+          idOrigin: id
+        })
       }
     }
+    return mapActions[status] ? mapActions[status]() : undefined
   }
 }
 

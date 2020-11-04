@@ -6,6 +6,7 @@ const Oportunidades = connection.model('Oportunidades', {
     unique: true
   },
   nomeNegocio: String,
+  idPedidoCompra: Number,
   valorFinal: Number,
   status: {
     type: String,
