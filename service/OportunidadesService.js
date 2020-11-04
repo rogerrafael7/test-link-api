@@ -55,7 +55,6 @@ class OportunidadesService extends AbstractService {
         await axios.put(`https://bling.com.br/Api/v2/pedidocompra/${oportunidade.idPedidoCompra}/json`, {
           apikey: process.env.BLING_API_KEY,
           xml: `
-            <?xml version="1.0" encoding="UTF-8"?>
             <pedidocompra>
                 <situacao>${2}</situacao>
             </pedidocompra>
@@ -69,7 +68,6 @@ class OportunidadesService extends AbstractService {
         await axios.put(`https://bling.com.br/Api/v2/pedidocompra/${oportunidade.idPedidoCompra}/json`, {
           apikey: process.env.BLING_API_KEY,
           xml: `
-            <?xml version="1.0" encoding="UTF-8"?>
             <pedidocompra>
                 <situacao>${3}</situacao>
             </pedidocompra>
@@ -88,7 +86,6 @@ class OportunidadesService extends AbstractService {
       const { data: { retorno: { pedidoscompra = [] } } } = await axios.post('https://bling.com.br/Api/v2/pedidocompra/json', {
         apikey: process.env.BLING_API_KEY,
         xml: `
-            <?xml version="1.0" encoding="utf-8" ?>
             <pedidocompra>
                 <numeropedido>1</numeropedido>
                 <datacompra>${moment().format('DD/MM/YYYY')}</datacompra>
