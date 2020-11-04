@@ -35,7 +35,7 @@ module.exports = {
       path: '/',
       method: 'post',
       handler: async (req, res) => {
-        return new OportunidadesService(req, res).saveOportunidade(req.body)
+        return new OportunidadesService(req, res).saveOportunidade(req.body.current)
       }
     }
   ]
