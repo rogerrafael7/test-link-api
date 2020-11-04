@@ -127,7 +127,8 @@ class OportunidadesService extends AbstractService {
           })
           if (oportunidade) {
             await cancelarPedidoBling(oportunidade)
-            return oportunidade.remove()
+            await oportunidade.remove()
+            return oportunidade
           }
         }
       },
@@ -144,7 +145,7 @@ class OportunidadesService extends AbstractService {
             const { id } = await inserirNovoPedidoBling()
             idPedidoCompra = id
           }
-          OportunidadesModel.update({ idOrigin: id }, {
+          await OportunidadesModel.update({ idOrigin: id }, {
             idPedidoCompra: idPedidoCompra,
             nomeNegocio: title,
             valorFinal: value,
