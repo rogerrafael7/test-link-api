@@ -1,4 +1,5 @@
 const connection = require('./index')
+const moment = require('moment')
 
 const Oportunidades = connection.model('Oportunidades', {
   idOrigin: {
@@ -13,8 +14,8 @@ const Oportunidades = connection.model('Oportunidades', {
     enum: ['ganho', 'perdido']
   },
   dataUltimoEvento: {
-    type: Date,
-    default: Date.now
+    type: String,
+    default: () => moment().format('DD/MM/YYYY')
   }
 })
 module.exports = Oportunidades
