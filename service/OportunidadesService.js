@@ -127,11 +127,10 @@ class OportunidadesService extends AbstractService {
           })
           if (oportunidade) {
             await cancelarPedidoBling(oportunidade)
-            await oportunidade.update({
-              nomeNegocio: title,
-              valorFinal: value,
-              status: 'reaberto'
-            })
+            oportunidade.nomeNegocio = title
+            oportunidade.valorFinal = value
+            oportunidade.status = 'reaberto'
+            await oportunidade.save()
             return oportunidade
           }
         }
@@ -144,11 +143,10 @@ class OportunidadesService extends AbstractService {
           let idPedidoCompra = null
           if (oportunidade) {
             await reabrirPedidoBling(oportunidade)
-            await oportunidade.update({
-              nomeNegocio: title,
-              valorFinal: value,
-              status: 'ganho'
-            })
+            oportunidade.nomeNegocio = title
+            oportunidade.valorFinal = value
+            oportunidade.status = 'ganho'
+            await oportunidade.save()
           } else {
             const { id } = await inserirNovoPedidoBling()
             idPedidoCompra = id
@@ -170,11 +168,10 @@ class OportunidadesService extends AbstractService {
           })
           if (oportunidade) {
             await cancelarPedidoBling(oportunidade)
-            await oportunidade.update({
-              nomeNegocio: title,
-              valorFinal: value,
-              status: 'perdido'
-            })
+            oportunidade.nomeNegocio = title
+            oportunidade.valorFinal = value
+            oportunidade.status = 'perdido'
+            await oportunidade.save()
             return oportunidade
           }
         }
@@ -185,15 +182,15 @@ class OportunidadesService extends AbstractService {
         })
         if (oportunidade) {
           await cancelarPedidoBling(oportunidade)
-          await oportunidade.update({
-            nomeNegocio: title,
-            valorFinal: value,
-            status: 'removido'
-          })
+          oportunidade.nomeNegocio = title
+          oportunidade.valorFinal = value
+          oportunidade.status = 'removido'
+          await oportunidade.save()
           return oportunidade
         }
       }
     }
+    console.log(status)
     return mapActions[status] ? mapActions[status]() : undefined
   }
 }
